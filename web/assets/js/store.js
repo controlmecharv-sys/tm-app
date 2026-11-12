@@ -21,6 +21,11 @@ const Store = (() => {
   const KEY = "tm_diary_v1";
   let state = null;
   const listeners = new Set();
+  const opListeners = new Set();
+  /* Cada cambio se emite como operación para sincronizarlo con el servidor (sync.js) */
+  function emit(op) { op.ts = Date.now(); opListeners.forEach(fn => fn(op)); }
+  const foodOp = (date, e) => { const { id, ...data } = e; return { entity: "food", type: "upsert", id, day: date, data }; };
+  const exOp = (date, x) => { const { id, ...data } = x; return { entity: "exercise", type: "upsert", id, day: date, data }; };
 
   function load() {
     if (state) return state;
@@ -55,10 +60,48 @@ const Store = (() => {
 
   return {
     onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); },
+    onOp(fn) { opListeners.add(fn); return () => opListeners.delete(fn); },
+
+    /* Todo el contenido local como operaciones (primera sincronización de un dispositivo) */
+    snapshotOps() {
+      load();
+      const ops = [];
+      Object.entries(state.days).forEach(([date, d]) => {
+        d.foods.forEach(e => ops.push(foodOp(date, e)));
+        d.exercises.forEach(x => ops.push(exOp(date, x)));
+      });
+      state.weights.forEach(w => ops.push({ entity: "weight", type: "upsert", day: w.date, data: { kg: w.kg } }));
+      // La meta solo viaja si el usuario la calculó; la meta por defecto no debe pisar la de otro dispositivo
+      if (state.goals.profile) ops.push({ entity: "goals", type: "upsert", data: { ...state.goals } });
+      const ts = Date.now();
+      return ops.map(op => ({ ...op, ts }));
+    },
+
+    /* Aplica cambios recibidos del servidor sin volver a emitirlos. skipIds: registros con cambios locales pendientes */
+    applyRemote(changes, skipIds = new Set()) {
+      load();
+      const upsert = (list, ch) => {
+        const i = list.findIndex(x => x.id === ch.id);
+        if (ch.deleted) { if (i >= 0) list.splice(i, 1); return; }
+        const row = { id: ch.id, ...ch.data };
+        if (i >= 0) list[i] = row; else list.push(row);
+      };
+      (changes.foods || []).forEach(ch => { if (!skipIds.has(ch.id)) upsert(day(ch.day).foods, ch); });
+      (changes.exercises || []).forEach(ch => { if (!skipIds.has(ch.id)) upsert(day(ch.day).exercises, ch); });
+      (changes.weights || []).forEach(w => {
+        state.weights = state.weights.filter(x => x.date !== w.day);
+        if (w.kg > 0) state.weights.push({ date: w.day, kg: w.kg });
+      });
+      if (changes.goals && !skipIds.has("goals")) state.goals = { ...state.goals, ...changes.goals };
+      save();
+    },
 
     /* ---- Metas ---- */
     getGoals() { return load().goals; },
-    setGoals(goals) { load(); state.goals = { ...state.goals, ...goals }; save(); },
+    setGoals(goals) {
+      load(); state.goals = { ...state.goals, ...goals }; save();
+      emit({ entity: "goals", type: "upsert", data: { ...state.goals } });
+    },
 
     /* ---- Días ---- */
     getDay(date) {
@@ -85,22 +128,26 @@ const Store = (() => {
       pushRecent(entry.slug);
       recordUsage(e);
       save();
+      emit(foodOp(date, e));
       return e;
     },
     updateFood(date, id, patch) {
       const d = day(date);
       const i = d.foods.findIndex(e => e.id === id);
-      if (i >= 0) { d.foods[i] = { ...d.foods[i], ...patch }; save(); }
+      if (i >= 0) { d.foods[i] = { ...d.foods[i], ...patch }; save(); emit(foodOp(date, d.foods[i])); }
     },
     removeFood(date, id) {
       const d = day(date);
       d.foods = d.foods.filter(e => e.id !== id);
       save();
+      emit({ entity: "food", type: "delete", id, day: date });
     },
     clearMeal(date, meal) {
       const d = day(date);
+      const gone = d.foods.filter(e => e.meal === meal);
       d.foods = d.foods.filter(e => e.meal !== meal);
       save();
+      gone.forEach(e => emit({ entity: "food", type: "delete", id: e.id, day: date }));
     },
     copyMeal(fromDate, toDate, meal) {
       const src = this.getDay(fromDate).foods.filter(e => e.meal === meal);
@@ -108,12 +155,14 @@ const Store = (() => {
       const copies = src.map(e => ({ ...e, id: uid() }));
       copies.forEach(e => d.foods.push(e));
       save();
+      copies.forEach(e => emit(foodOp(toDate, e)));
       return copies;
     },
     removeFoods(date, ids) {
       const d = day(date);
       d.foods = d.foods.filter(e => !ids.includes(e.id));
       save();
+      ids.forEach(id => emit({ entity: "food", type: "delete", id, day: date }));
     },
     recents() { return load().recents.slice(); },
     /* Frecuentes para una comida: primero lo que se come en esa comida, luego lo reciente */
@@ -138,12 +187,14 @@ const Store = (() => {
       const x = { id: uid(), ...ex };
       day(date).exercises.push(x);
       save();
+      emit(exOp(date, x));
       return x;
     },
     removeExercise(date, id) {
       const d = day(date);
       d.exercises = d.exercises.filter(x => x.id !== id);
       save();
+      emit({ entity: "exercise", type: "delete", id, day: date });
     },
 
     /* ---- Peso ---- */
@@ -153,6 +204,7 @@ const Store = (() => {
       state.weights = state.weights.filter(w => w.date !== date);
       if (kg > 0) state.weights.push({ date, kg });
       save();
+      emit(kg > 0 ? { entity: "weight", type: "upsert", day: date, data: { kg } } : { entity: "weight", type: "delete", day: date });
     }
   };
 })();

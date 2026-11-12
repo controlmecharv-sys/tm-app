@@ -8,6 +8,9 @@ const APP = {
   name: "T&M",
   tagline: "Fitness",
   supportEmail: "soporte@tym.cl",
+  /* Dirección de la API. Vacía = sin cuentas (el diario queda solo en el dispositivo).
+     Al desplegar el backend, poner aquí su URL https. */
+  apiBase: ["127.0.0.1", "localhost"].includes(location.hostname) ? "http://127.0.0.1:8787" : "",
   refWeightKg: 77,
   storage: {
     profile: "tm_profile",

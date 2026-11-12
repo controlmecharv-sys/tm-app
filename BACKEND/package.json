@@ -1,0 +1,13 @@
+{
+  "name": "tm-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API de T&M: cuentas, sincronización del diario y base de alimentos (Node + TypeScript + SQLite, sin dependencias).",
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.ts",
+    "dev": "node --disable-warning=ExperimentalWarning --watch src/server.ts",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.ts"
+  }
+}
