@@ -1,0 +1,233 @@
+/*
+ * Base de datos de ejercicios.
+ * Formato: [nombre, categoría, MET, ícono (opcional), grupo (opcional)]
+ * kcal/h para un adulto promedio (77 kg) = MET × 77.
+ * Valores MET aproximados del Compendium of Physical Activities.
+ */
+const CATEGORY_ICONS = {
+  "Acondicionamiento Físico": "🏋️",
+  "Carrera": "🏃",
+  "Caminar": "🚶",
+  "Ciclismo": "🚴",
+  "Deportes": "🏅",
+  "Deportes de Combate": "🥊",
+  "Deportes Acuáticos": "🏊",
+  "Deportes de Invierno": "⛷️",
+  "Danza/Baile": "💃",
+  "Actividades Domésticas": "🏠",
+  "Césped y Jardín": "🌱",
+  "Reparaciones Domésticas": "🔧",
+  "Ocupación": "💼",
+  "Otros": "⭐"
+};
+
+const RAW_EXERCISES = [
+  // ---------- Carrera ----------
+  ["Correr", "Carrera", 7.0, "🏃", "correr"],
+  ["Atletismo", "Carrera", 8.75, "🏃", "correr"],
+  ["Caminadora, Correr", "Carrera", 7.0, "🏃", "correr"],
+  ["Caminadora, Correr, lento", "Carrera", 5.25, "🏃", "correr"],
+  ["Caminadora, Correr, moderado", "Carrera", 8.75, "🏃", "correr"],
+  ["Caminadora, Correr, rápido", "Carrera", 12.26, "🏃", "correr"],
+  ["Caminadora, Correr, muy rápido", "Carrera", 16.64, "🏃", "correr"],
+  ["Trotar", "Carrera", 7.0, "🏃", "correr"],
+  ["Trail running", "Carrera", 9.0, "⛰️", "correr"],
+  ["Correr en escaleras", "Carrera", 15.0, "🏃"],
+  ["Cross-country", "Carrera", 9.0, "🏃"],
+  ["Maratón", "Carrera", 13.3, "🏅"],
+  ["Sprint", "Carrera", 16.0, "⚡"],
+
+  // ---------- Caminar ----------
+  ["Caminar, lento", "Caminar", 2.8, "🚶", "caminar"],
+  ["Caminar, moderado", "Caminar", 3.5, "🚶", "caminar"],
+  ["Caminar, rápido", "Caminar", 4.3, "🚶", "caminar"],
+  ["Caminar, muy rápido", "Caminar", 5.0, "🚶", "caminar"],
+  ["Caminadora, Caminar", "Caminar", 3.5, "🚶", "caminar"],
+  ["Caminadora inclinada", "Caminar", 6.0, "🚶", "caminar"],
+  ["Senderismo", "Caminar", 6.0, "🥾"],
+  ["Caminar con mochila", "Caminar", 7.0, "🎒"],
+  ["Marcha nórdica", "Caminar", 4.8, "🚶"],
+  ["Subir escaleras", "Caminar", 4.0, "🪜"],
+  ["Pasear al perro", "Caminar", 3.0, "🐕"],
+
+  // ---------- Ciclismo ----------
+  ["Bicicleta", "Ciclismo", 5.08, "🚴", "bici"],
+  ["Bicicleta estacionaria", "Ciclismo", 4.21, "🚴", "bici"],
+  ["Bicicleta elíptica", "Ciclismo", 4.64, "🚴", "bici"],
+  ["Bicicleta de montaña", "Ciclismo", 8.5, "🚵", "bici"],
+  ["Ciclismo de ruta, moderado", "Ciclismo", 8.0, "🚴", "bici"],
+  ["Ciclismo de ruta, rápido", "Ciclismo", 10.0, "🚴", "bici"],
+  ["Spinning", "Ciclismo", 8.5, "🚴", "bici"],
+  ["Bicicleta, paseo", "Ciclismo", 4.0, "🚲", "bici"],
+  ["Bicicleta eléctrica", "Ciclismo", 3.5, "🚲", "bici"],
+  ["BMX", "Ciclismo", 8.5, "🚲"],
+
+  // ---------- Acondicionamiento Físico ----------
+  ["StairMaster", "Acondicionamiento Físico", 7.88, "🪜"],
+  ["Entrenamiento HIIT", "Acondicionamiento Físico", 8.31, "⚡"],
+  ["Ejercicios con pesas o máquinas", "Acondicionamiento Físico", 4.27, "🏋️", "fuerza"],
+  ["Levantamiento de pesas, intenso", "Acondicionamiento Físico", 6.0, "🏋️", "fuerza"],
+  ["Powerlifting", "Acondicionamiento Físico", 6.0, "🏋️", "fuerza"],
+  ["Kettlebell", "Acondicionamiento Físico", 8.0, "🏋️", "fuerza"],
+  ["CrossFit", "Acondicionamiento Físico", 8.0, "🏋️", "fuerza"],
+  ["Entrenamiento funcional", "Acondicionamiento Físico", 6.0, "🤸", "fuerza"],
+  ["Entrenamiento en circuito", "Acondicionamiento Físico", 6.0, "🔁", "fuerza"],
+  ["TRX", "Acondicionamiento Físico", 5.0, "🤸", "fuerza"],
+  ["Abdominales", "Acondicionamiento Físico", 2.62, "💪", "calistenia"],
+  ["Abdominales con Peso", "Acondicionamiento Físico", 2.62, "💪", "calistenia"],
+  ["Flexiones de pecho", "Acondicionamiento Físico", 3.8, "💪", "calistenia"],
+  ["Sentadillas", "Acondicionamiento Físico", 5.0, "🦵", "calistenia"],
+  ["Burpees", "Acondicionamiento Físico", 8.0, "⚡", "calistenia"],
+  ["Calistenia, moderado", "Acondicionamiento Físico", 3.8, "🤸", "calistenia"],
+  ["Calistenia, intenso", "Acondicionamiento Físico", 8.0, "🤸", "calistenia"],
+  ["Acondicionamiento", "Acondicionamiento Físico", 5.17, "🏋️"],
+  ["Acrobungee", "Acondicionamiento Físico", 6.13, "🤸"],
+  ["Saltar la cuerda", "Acondicionamiento Físico", 11.0, "🪢"],
+  ["Saltar la cuerda, lento", "Acondicionamiento Físico", 8.8, "🪢"],
+  ["Máquina de remo", "Acondicionamiento Físico", 7.0, "🚣"],
+  ["Escaladora (stepper)", "Acondicionamiento Físico", 9.0, "🪜"],
+  ["Aquabike", "Acondicionamiento Físico", 4.64, "🚴"],
+  ["Yoga", "Acondicionamiento Físico", 2.18, "🧘", "yoga"],
+  ["Aerial Yoga", "Acondicionamiento Físico", 2.18, "🧘", "yoga"],
+  ["Aqua Yoga", "Acondicionamiento Físico", 2.18, "🧘", "yoga"],
+  ["Power Yoga", "Acondicionamiento Físico", 4.0, "🧘", "yoga"],
+  ["Pilates", "Acondicionamiento Físico", 3.0, "🧘", "yoga"],
+  ["Estiramientos", "Acondicionamiento Físico", 2.3, "🧘", "yoga"],
+  ["Tai chi", "Acondicionamiento Físico", 3.0, "🧘", "yoga"],
+  ["Actividad física por videojuegos (ej: Dance Dance Revolution), esfuerzo intenso", "Acondicionamiento Físico", 6.3, "🎮", "videojuegos"],
+  ["Actividad física por videojuegos (ej: Wii Fit), esfuerzo ligero", "Acondicionamiento Físico", 2.01, "🎮", "videojuegos"],
+  ["Actividad física por videojuegos (ej: Wii Fit), esfuerzo moderado", "Acondicionamiento Físico", 3.32, "🎮", "videojuegos"],
+
+  // ---------- Danza/Baile ----------
+  ["Baile", "Danza/Baile", 5.34, "💃"],
+  ["Aerobic", "Danza/Baile", 5.25, "💃", "step"],
+  ["Aeróbicos con step", "Danza/Baile", 6.39, "💃", "step"],
+  ["Aeróbicos con step 10 cm", "Danza/Baile", 4.82, "💃", "step"],
+  ["Aeróbicos con step 15 - 20 cm", "Danza/Baile", 6.56, "💃", "step"],
+  ["Aeróbicos con step 25 - 30 cm", "Danza/Baile", 8.31, "💃", "step"],
+  ["Zumba", "Danza/Baile", 6.5, "💃"],
+  ["Salsa", "Danza/Baile", 4.5, "💃"],
+  ["Bachata", "Danza/Baile", 4.5, "💃"],
+  ["Ballet", "Danza/Baile", 5.0, "🩰"],
+  ["Hip hop", "Danza/Baile", 7.3, "🕺"],
+  ["Tango", "Danza/Baile", 3.0, "💃"],
+  ["Baile de salón, lento", "Danza/Baile", 3.0, "💃"],
+  ["Baile de salón, rápido", "Danza/Baile", 5.5, "💃"],
+  ["Danza árabe", "Danza/Baile", 4.5, "💃"],
+
+  // ---------- Deportes ----------
+  ["Fútbol", "Deportes", 6.13, "⚽"],
+  ["Fútbol sala", "Deportes", 7.0, "⚽"],
+  ["Fútbol americano", "Deportes", 8.0, "🏈"],
+  ["Baloncesto", "Deportes", 5.69, "🏀"],
+  ["Tenis", "Deportes", 6.39, "🎾", "raqueta"],
+  ["Pádel", "Deportes", 6.0, "🎾", "raqueta"],
+  ["Squash", "Deportes", 7.3, "🎾", "raqueta"],
+  ["Bádminton", "Deportes", 5.5, "🏸", "raqueta"],
+  ["Ping pong", "Deportes", 4.0, "🏓", "raqueta"],
+  ["Voleibol", "Deportes", 4.0, "🏐"],
+  ["Voleibol de playa", "Deportes", 8.0, "🏐"],
+  ["Béisbol", "Deportes", 5.0, "⚾"],
+  ["Golf", "Deportes", 4.8, "⛳"],
+  ["Rugby", "Deportes", 8.3, "🏉"],
+  ["Hockey", "Deportes", 8.0, "🏑"],
+  ["Balonmano", "Deportes", 8.0, "🤾"],
+  ["Escalada", "Deportes", 8.0, "🧗"],
+  ["Patinaje", "Deportes", 7.0, "⛸️"],
+  ["Skateboard", "Deportes", 5.0, "🛹"],
+  ["Frisbee", "Deportes", 3.0, "🥏"],
+  ["Equitación", "Deportes", 5.5, "🏇"],
+  ["Tiro con arco", "Deportes", 4.3, "🏹"],
+  ["Bolos", "Deportes", 3.8, "🎳"],
+  ["Billar", "Deportes", 2.5, "🎱"],
+  ["Acrobacias", "Deportes", 3.32, "🤸"],
+  ["Acroyoga", "Deportes", 3.32, "🤸"],
+  ["Aladeltismo", "Deportes", 3.07, "🪂"],
+  ["Airsoft", "Deportes", 2.18, "🎯"],
+
+  // ---------- Deportes de Combate ----------
+  ["Boxeo, entrenamiento", "Deportes de Combate", 4.82, "🥊"],
+  ["Boxeo, combate", "Deportes de Combate", 12.8, "🥊"],
+  ["Aerobox", "Deportes de Combate", 9.01, "🥊"],
+  ["Kickboxing", "Deportes de Combate", 7.3, "🥋"],
+  ["Artes marciales (karate, judo)", "Deportes de Combate", 10.3, "🥋"],
+  ["Aikido", "Deportes de Combate", 4.64, "🥋"],
+  ["Jiu-jitsu", "Deportes de Combate", 7.0, "🥋"],
+  ["Esgrima", "Deportes de Combate", 6.0, "🤺"],
+
+  // ---------- Deportes Acuáticos ----------
+  ["Natación, recreativo", "Deportes Acuáticos", 5.25, "🏊", "natacion"],
+  ["Natación, crol moderado", "Deportes Acuáticos", 8.3, "🏊", "natacion"],
+  ["Natación, crol rápido", "Deportes Acuáticos", 10.0, "🏊", "natacion"],
+  ["Natación, espalda", "Deportes Acuáticos", 4.8, "🏊", "natacion"],
+  ["Natación, pecho", "Deportes Acuáticos", 5.3, "🏊", "natacion"],
+  ["Natación, mariposa", "Deportes Acuáticos", 13.8, "🏊", "natacion"],
+  ["Aquaeróbicos", "Deportes Acuáticos", 5.5, "🏊"],
+  ["Waterpolo", "Deportes Acuáticos", 10.0, "🤽"],
+  ["Surf", "Deportes Acuáticos", 3.0, "🏄"],
+  ["Stand up paddle", "Deportes Acuáticos", 6.0, "🏄"],
+  ["Kayak", "Deportes Acuáticos", 5.0, "🛶"],
+  ["Remo (bote)", "Deportes Acuáticos", 5.8, "🚣"],
+  ["Buceo", "Deportes Acuáticos", 7.0, "🤿"],
+  ["Esquí acuático", "Deportes Acuáticos", 6.0, "🎿"],
+
+  // ---------- Deportes de Invierno ----------
+  ["Esquí alpino", "Deportes de Invierno", 6.0, "⛷️"],
+  ["Esquí de fondo", "Deportes de Invierno", 9.0, "⛷️"],
+  ["Snowboard", "Deportes de Invierno", 5.3, "🏂"],
+  ["Patinaje sobre hielo", "Deportes de Invierno", 7.0, "⛸️"],
+  ["Raquetas de nieve", "Deportes de Invierno", 5.3, "❄️"],
+
+  // ---------- Actividades Domésticas ----------
+  ["Alimentar mascotas", "Actividades Domésticas", 2.18, "🐾"],
+  ["Amamantar al bebé", "Actividades Domésticas", 1.75, "👶"],
+  ["Jugar con niños", "Actividades Domésticas", 4.0, "🧸"],
+  ["Limpiar la casa", "Actividades Domésticas", 3.3, "🧹"],
+  ["Barrer", "Actividades Domésticas", 3.3, "🧹"],
+  ["Trapear", "Actividades Domésticas", 3.5, "🧽"],
+  ["Aspirar", "Actividades Domésticas", 3.3, "🧹"],
+  ["Lavar platos", "Actividades Domésticas", 1.8, "🍽️"],
+  ["Cocinar", "Actividades Domésticas", 2.0, "🍳"],
+  ["Planchar", "Actividades Domésticas", 1.8, "👕"],
+  ["Hacer la cama", "Actividades Domésticas", 2.0, "🛏️"],
+  ["Mudanza (cargar cajas)", "Actividades Domésticas", 6.5, "📦"],
+  ["Comprar víveres", "Actividades Domésticas", 2.3, "🛒"],
+
+  // ---------- Césped y Jardín ----------
+  ["Agricultura", "Césped y Jardín", 3.32, "🌾"],
+  ["Jardinería", "Césped y Jardín", 3.8, "🌱"],
+  ["Cortar el césped", "Césped y Jardín", 5.5, "🌿"],
+  ["Rastrillar hojas", "Césped y Jardín", 3.8, "🍂"],
+  ["Palear nieve", "Césped y Jardín", 5.3, "❄️"],
+  ["Cortar leña", "Césped y Jardín", 6.3, "🪓"],
+  ["Plantar árboles", "Césped y Jardín", 4.5, "🌳"],
+
+  // ---------- Reparaciones Domésticas ----------
+  ["Afilar herramientas", "Reparaciones Domésticas", 1.75, "🔧"],
+  ["Albañilería", "Reparaciones Domésticas", 3.94, "🧱"],
+  ["Carpintería", "Reparaciones Domésticas", 3.6, "🪚"],
+  ["Pintar paredes", "Reparaciones Domésticas", 3.3, "🖌️"],
+  ["Reparar el techo", "Reparaciones Domésticas", 5.0, "🔨"],
+  ["Lavar el auto", "Reparaciones Domésticas", 3.5, "🚗"],
+
+  // ---------- Ocupación ----------
+  ["Trabajo de oficina", "Ocupación", 1.5, "💻"],
+  ["Trabajo de construcción", "Ocupación", 5.5, "👷"],
+  ["Trabajo de bodega", "Ocupación", 4.0, "📦"],
+  ["Conducir", "Ocupación", 2.5, "🚗"],
+
+  // ---------- Otros ----------
+  ["Tocar batería", "Otros", 3.8, "🥁"],
+  ["Tocar guitarra, de pie", "Otros", 3.0, "🎸"],
+  ["Meditación", "Otros", 1.0, "🧘"],
+  ["Ver televisión", "Otros", 1.3, "📺"],
+  ["Dormir", "Otros", 0.95, "😴"]
+];
+
+/* Slugs de los ejercicios destacados en la portada */
+const POPULAR_SLUGS = [
+  "stairmaster", "entrenamiento-hiit", "correr", "caminadora-correr", "tenis",
+  "futbol", "baloncesto", "baile", "bicicleta", "bicicleta-eliptica",
+  "boxeo-entrenamiento", "natacion-recreativo", "ejercicios-con-pesas-o-maquinas",
+  "bicicleta-estacionaria", "yoga"
+];
