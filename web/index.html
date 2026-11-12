@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>T&amp;M · Contador de calorías y plan de alimentación</title>
+  <meta name="description" content="Cuenta calorías y macros, registra tus comidas y sigue tu progreso. Alimentos, recetas y ejercicios en un solo lugar.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script>try{var t=localStorage.getItem("tm_theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <script>/* Usuario recurrente que entra directo (no desde el propio sitio): abrir el diario */
+  try{var r=document.referrer,own=r&&new URL(r).origin===location.origin;
+  if(!own&&!/[?&]inicio\b/.test(location.search)&&/"foods":\[\{/.test(localStorage.getItem("tm_diary_v1")||""))location.replace("plan.html")}catch(e){}</script>
+</head>
+<body data-page="home">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- 1. Hero con buscador global -->
+    <section class="home-hero">
+      <div class="container home-hero-inner">
+        <div class="home-hero-text">
+          <h1>Cuenta calorías.<br><em>Come bien</em><br><span class="mark">a tu manera.</span></h1>
+          <p class="lead">Busca cualquier alimento, receta o ejercicio, regístralo en tu diario y recibe metas de calorías y macros según tu objetivo.</p>
+          <div class="hero-search" id="hero-search"></div>
+          <div class="hero-popular"><span class="muted small">Populares:</span><span id="hero-popular" class="chips"></span></div>
+          <div class="trust">
+            <span><b id="stat-foods">0</b> alimentos</span>
+            <span class="sep"></span>
+            <span><b id="stat-recipes">0</b> recetas</span>
+            <span class="sep"></span>
+            <span><b id="stat-exercises">0</b> ejercicios</span>
+          </div>
+        </div>
+        <div class="phone" aria-hidden="true">
+          <div class="phone-screen" id="phone-mock"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <!-- 2. Accesos rápidos por categoría -->
+      <section class="section">
+        <div class="section-head"><h2>Explora por categoría</h2></div>
+        <div class="quick-cats" id="quick-cats"></div>
+      </section>
+
+      <!-- 3. Cómo funciona -->
+      <section class="section">
+        <div class="section-intro">
+          <h2>Cómo funciona</h2>
+          <p class="lead">Tres pasos y nosotros hacemos los cálculos.</p>
+        </div>
+        <div class="steps-grid">
+          <article class="panel step">
+            <span class="step-num">1</span>
+            <h3>Busca</h3>
+            <p class="muted">Encuentra cualquier alimento, receta o ejercicio con calorías y macros por porción.</p>
+            <div class="mini-ui" id="step-search"></div>
+          </article>
+          <article class="panel step">
+            <span class="step-num">2</span>
+            <h3>Registra</h3>
+            <p class="muted">Elige la porción (unidad, taza, gramos) y agrégala a desayuno, almuerzo, cena o snacks.</p>
+            <div class="mini-ui" id="step-portion"></div>
+          </article>
+          <article class="panel step">
+            <span class="step-num">3</span>
+            <h3>Mide tu progreso</h3>
+            <p class="muted">Compara tu día con tu meta y revisa tus calorías, macros y peso en el tiempo.</p>
+            <div class="mini-ui" id="step-progress"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 4. Preguntas frecuentes -->
+      <section class="section" id="faq">
+        <div class="section-intro"><h2>Preguntas frecuentes</h2></div>
+        <div class="faq">
+          <div class="faq-item">
+            <button type="button" aria-expanded="false">¿Cómo funciona T&amp;M?<span aria-hidden="true">+</span></button>
+            <div class="faq-body"><p>Defines tu meta de calorías y macros, registras lo que comes en desayuno, almuerzo, cena y snacks, y revisas tu progreso día a día. Puedes usar alimentos de la base de datos, recetas o registrar calorías rápidas.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" aria-expanded="false">¿Tiene costo?<span aria-hidden="true">+</span></button>
+            <div class="faq-body"><p>Puedes registrar tus comidas y ver tu progreso sin costo. Por ahora tu diario se guarda en este dispositivo; al iniciar sesión podrás sincronizarlo.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" aria-expanded="false">¿Cómo se calculan mis calorías y macronutrientes?<span aria-hidden="true">+</span></button>
+            <div class="faq-body"><p>Usamos la ecuación de Mifflin-St Jeor para estimar tu metabolismo basal y lo multiplicamos por tu nivel de actividad. Luego ajustamos según tu objetivo: −20% para perder grasa y +10% para ganar músculo. La proteína se fija entre 1,6 y 2 g por kg y la grasa en ~27% de las calorías.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" aria-expanded="false">¿De dónde viene la información nutricional?<span aria-hidden="true">+</span></button>
+            <div class="faq-body"><p>Los alimentos genéricos usan valores de referencia de tablas de composición de alimentos. Las recetas se calculan sumando sus ingredientes. Son estimaciones: la etiqueta del producto siempre es la fuente más precisa.</p></div>
+          </div>
+          <div class="faq-item">
+            <button type="button" aria-expanded="false">¿Puedo usarlo para perder peso o ganar músculo?<span aria-hidden="true">+</span></button>
+            <div class="faq-body"><p>Sí. Elige tu objetivo al calcular tu meta y la app ajustará tus calorías y macros. También puedes registrar ejercicio y tu peso para ver cómo avanzas.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Único llamado a la acción -->
+      <section class="cta">
+        <div class="cta-text">
+          <h2>Comienza a contar tus calorías hoy.</h2>
+          <p>Sin descargas: abre tu diario y registra tu primera comida ahora.</p>
+        </div>
+        <a class="btn btn-accent btn-lg" href="plan.html">Comenzar</a>
+      </section>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/data/alimentos.js"></script>
+  <script src="assets/js/data/alimentos-cl.js"></script>
+  <script src="assets/js/data/recetas.js"></script>
+  <script src="assets/js/data/ejercicios.js"></script>
+  <script src="assets/js/core.js"></script>
+  <script src="assets/js/nutrition.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/pages/ejercicios.js"></script>
+  <script src="assets/js/pages/home.js"></script>
+</body>
+</html>
