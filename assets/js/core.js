@@ -386,3 +386,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page;
   if (PAGES[page]) PAGES[page]();
 });
+
+/* App instalable y uso sin conexión (solo en https o localhost) */
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "127.0.0.1" || location.hostname === "localhost")) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
