@@ -4,13 +4,13 @@
  * - CSS, JS, íconos y fuentes: copia guardada primero, se actualiza en segundo plano.
  * Al cambiar archivos, subir VERSION para que los teléfonos descarguen la nueva versión.
  */
-const VERSION = "tm-v1";
+const VERSION = "tm-v2";
 const CORE = [
-  "./", "index.html", "plan.html", "explorar.html", "alimento.html", "ejercicio.html",
+  "./", "index.html", "plan.html", "login.html", "explorar.html", "alimento.html", "ejercicio.html",
   "manifest.webmanifest",
   "assets/css/styles.css",
   "assets/js/data/alimentos.js", "assets/js/data/alimentos-cl.js", "assets/js/data/recetas.js", "assets/js/data/ejercicios.js",
-  "assets/js/core.js", "assets/js/nutrition.js", "assets/js/store.js",
+  "assets/js/core.js", "assets/js/nutrition.js", "assets/js/store.js", "assets/js/sync.js", "assets/js/pages/login.js",
   "assets/js/pages/home.js", "assets/js/pages/plan.js", "assets/js/pages/explorar.js",
   "assets/js/pages/alimentos.js", "assets/js/pages/ejercicios.js",
   "assets/icons/icon-192.png", "assets/icons/favicon-32.png"
