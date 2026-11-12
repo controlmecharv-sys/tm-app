@@ -1,0 +1,22 @@
+{
+  "name": "T&M · Contador de calorías",
+  "short_name": "T&M",
+  "description": "Registra tus comidas y ejercicio, y sigue tus calorías y macros.",
+  "lang": "es-CL",
+  "start_url": "plan.html?fuente=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7fb",
+  "theme_color": "#0b1220",
+  "categories": ["health", "fitness", "food"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Mi diario de hoy", "url": "plan.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Buscar alimento", "url": "explorar.html?tipo=alimentos", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
